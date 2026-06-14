@@ -3,17 +3,20 @@ package com.confeitaria.gestao.presentation.ui.pedidos
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.confeitaria.gestao.presentation.components.StatusChip
+import com.confeitaria.gestao.presentation.util.abrirWhatsApp
 import com.confeitaria.gestao.presentation.util.toDataBR
 import com.confeitaria.gestao.presentation.util.toMoedaBR
 
@@ -24,6 +27,7 @@ fun PedidoDetalheScreen(
     viewModel: PedidoDetalheViewModel = hiltViewModel()
 ) {
     val pedido by viewModel.pedido.collectAsState()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -121,6 +125,24 @@ fun PedidoDetalheScreen(
                             modifier = Modifier.padding(16.dp),
                             style = MaterialTheme.typography.bodyMedium
                         )
+                    }
+                }
+
+                if (p.clienteTelefone.isNotBlank()) {
+                    val msgEntrega = p.dataEntrega?.let { " para ${it.toDataBR()}" } ?: ""
+                    Button(
+                        onClick = {
+                            abrirWhatsApp(
+                                context,
+                                p.clienteTelefone,
+                                "Olá ${p.clienteNome}! Seu pedido #${p.id} está confirmado$msgEntrega."
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        Text("Avisar cliente no WhatsApp")
                     }
                 }
             }

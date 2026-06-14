@@ -31,6 +31,8 @@ interface PedidoRepository {
     suspend fun updateStatus(id: Long, status: String)
     fun countAtivos(): Flow<Int>
     fun getReceitaPeriodo(inicio: Long, fim: Long): Flow<Long>
+    fun getPedidosPeriodo(inicio: Long, fim: Long): Flow<List<Pedido>>
+    fun getTotalRecebidoPeriodo(inicio: Long, fim: Long): Flow<Long>
 }
 
 interface FreteRepository {

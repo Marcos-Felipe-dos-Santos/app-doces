@@ -2,6 +2,7 @@ package com.confeitaria.gestao.data.repository
 
 import com.confeitaria.gestao.data.local.database.dao.ClienteDao
 import com.confeitaria.gestao.data.local.database.dao.ItemPedidoDao
+import com.confeitaria.gestao.data.local.database.dao.PagamentoDao
 import com.confeitaria.gestao.data.local.database.dao.PedidoDao
 import com.confeitaria.gestao.data.local.database.entity.ItemPedidoEntity
 import com.confeitaria.gestao.data.local.database.entity.PedidoEntity
@@ -16,7 +17,8 @@ import javax.inject.Inject
 class PedidoRepositoryImpl @Inject constructor(
     private val pedidoDao: PedidoDao,
     private val itemPedidoDao: ItemPedidoDao,
-    private val clienteDao: ClienteDao
+    private val clienteDao: ClienteDao,
+    private val pagamentoDao: PagamentoDao
 ) : PedidoRepository {
 
     override fun getAll(): Flow<List<Pedido>> = combine(
@@ -24,7 +26,7 @@ class PedidoRepositoryImpl @Inject constructor(
         clienteDao.getAll()
     ) { pedidos, clientes ->
         val clienteMap = clientes.associateBy { it.id }
-        pedidos.map { it.toDomain(clienteNome = clienteMap[it.clienteId]?.nome ?: "") }
+        pedidos.map { it.toDomain(clienteNome = clienteMap[it.clienteId]?.nome ?: "", clienteTelefone = clienteMap[it.clienteId]?.telefone ?: "") }
     }
 
     override fun getByStatus(status: String): Flow<List<Pedido>> = combine(
@@ -32,14 +34,14 @@ class PedidoRepositoryImpl @Inject constructor(
         clienteDao.getAll()
     ) { pedidos, clientes ->
         val clienteMap = clientes.associateBy { it.id }
-        pedidos.map { it.toDomain(clienteNome = clienteMap[it.clienteId]?.nome ?: "") }
+        pedidos.map { it.toDomain(clienteNome = clienteMap[it.clienteId]?.nome ?: "", clienteTelefone = clienteMap[it.clienteId]?.telefone ?: "") }
     }
 
     override suspend fun getById(id: Long): Pedido? {
         val entity = pedidoDao.getById(id) ?: return null
-        val clienteNome = clienteDao.getById(entity.clienteId)?.nome ?: ""
+        val cliente = clienteDao.getById(entity.clienteId)
         val itens = itemPedidoDao.getByPedido(id).first().map { it.toDomain() }
-        return entity.toDomain(clienteNome = clienteNome, itens = itens)
+        return entity.toDomain(clienteNome = cliente?.nome ?: "", clienteTelefone = cliente?.telefone ?: "", itens = itens)
     }
 
     override suspend fun save(pedido: Pedido): Long {
@@ -57,8 +59,19 @@ class PedidoRepositoryImpl @Inject constructor(
     override fun getReceitaPeriodo(inicio: Long, fim: Long): Flow<Long> =
         pedidoDao.getReceitaPeriodo(inicio, fim).map { it ?: 0L }
 
-    private fun PedidoEntity.toDomain(clienteNome: String = "", itens: List<ItemPedido> = emptyList()) = Pedido(
-        id = id, clienteId = clienteId, clienteNome = clienteNome,
+    override fun getPedidosPeriodo(inicio: Long, fim: Long): Flow<List<Pedido>> = combine(
+        pedidoDao.getPedidosPeriodo(inicio, fim),
+        clienteDao.getAll()
+    ) { pedidos, clientes ->
+        val clienteMap = clientes.associateBy { it.id }
+        pedidos.map { it.toDomain(clienteNome = clienteMap[it.clienteId]?.nome ?: "", clienteTelefone = clienteMap[it.clienteId]?.telefone ?: "") }
+    }
+
+    override fun getTotalRecebidoPeriodo(inicio: Long, fim: Long): Flow<Long> =
+        pagamentoDao.getTotalRecebidoPeriodo(inicio, fim)
+
+    private fun PedidoEntity.toDomain(clienteNome: String = "", clienteTelefone: String = "", itens: List<ItemPedido> = emptyList()) = Pedido(
+        id = id, clienteId = clienteId, clienteNome = clienteNome, clienteTelefone = clienteTelefone,
         dataPedido = dataPedido, dataEntrega = dataEntrega, horaEntrega = horaEntrega,
         tipoEntrega = TipoEntrega.valueOf(tipoEntrega),
         enderecoId = enderecoId, status = StatusPedido.valueOf(status),
