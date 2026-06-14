@@ -42,7 +42,7 @@ data class Produto(
     val categoriaId: Long? = null,
     val nome: String,
     val descricao: String? = null,
-    val precoBase: Double,
+    val precoBase: Long,
     val fotoPath: String? = null,
     val variacoes: List<ProdutoVariacao> = emptyList()
 )
@@ -51,7 +51,7 @@ data class ProdutoVariacao(
     val id: Long = 0,
     val produtoId: Long,
     val nome: String,
-    val precoAdicional: Double = 0.0
+    val precoAdicional: Long = 0L
 )
 
 data class Pedido(
@@ -66,10 +66,10 @@ data class Pedido(
     val endereco: Endereco? = null,
     val status: StatusPedido = StatusPedido.PENDENTE,
     val formaPagamento: FormaPagamento? = null,
-    val totalProdutos: Double = 0.0,
-    val totalFrete: Double = 0.0,
-    val desconto: Double = 0.0,
-    val totalFinal: Double = 0.0,
+    val totalProdutos: Long = 0L,
+    val totalFrete: Long = 0L,
+    val desconto: Long = 0L,
+    val totalFinal: Long = 0L,
     val observacoes: String? = null,
     val itens: List<ItemPedido> = emptyList(),
     val pagamentos: List<Pagamento> = emptyList()
@@ -83,16 +83,16 @@ data class ItemPedido(
     val variacaoId: Long? = null,
     val variacaoNome: String? = null,
     val quantidade: Int = 1,
-    val precoUnitario: Double,
+    val precoUnitario: Long,
     val observacoes: String? = null
 ) {
-    val subtotal: Double get() = quantidade * precoUnitario
+    val subtotal: Long get() = quantidade.toLong() * precoUnitario
 }
 
 data class Pagamento(
     val id: Long = 0,
     val pedidoId: Long,
-    val valor: Double,
+    val valor: Long,
     val formaPagamento: FormaPagamento,
     val dataPagamento: Long = System.currentTimeMillis(),
     val confirmado: Boolean = false

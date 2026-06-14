@@ -11,7 +11,7 @@ import javax.inject.Inject
 data class DashboardUiState(
     val pedidosHoje: List<Pedido> = emptyList(),
     val pedidosEmProducao: List<Pedido> = emptyList(),
-    val totalMes: Double = 0.0,
+    val totalMes: Long = 0L,
     val pagamentosPendentes: Int = 0,
     val isLoading: Boolean = false
 )

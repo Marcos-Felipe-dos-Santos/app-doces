@@ -23,6 +23,6 @@ data class ItemPedidoEntity(
     val produtoId: Long,
     val variacaoId: Long? = null,
     val quantidade: Int = 1,
-    val precoUnitario: Double,
+    val precoUnitario: Long,
     val observacoes: String? = null
 )

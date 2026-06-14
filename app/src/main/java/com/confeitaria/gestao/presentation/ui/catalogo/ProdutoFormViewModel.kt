@@ -23,7 +23,7 @@ class ProdutoFormViewModel @Inject constructor(
     private val _salvo = MutableStateFlow(false)
     val salvo: StateFlow<Boolean> = _salvo.asStateFlow()
 
-    fun salvar(nome: String, descricao: String, precoBase: Double, categoriaId: Long?) {
+    fun salvar(nome: String, descricao: String, precoBase: Long, categoriaId: Long?) {
         viewModelScope.launch {
             saveProdutoUseCase(
                 Produto(

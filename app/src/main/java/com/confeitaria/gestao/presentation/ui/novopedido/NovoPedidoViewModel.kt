@@ -24,7 +24,7 @@ data class NovoPedidoUiState(
     val salvando: Boolean = false,
     val pedidoSalvoId: Long? = null
 ) {
-    val totalProdutos: Double get() = itens.sumOf { it.subtotal }
+    val totalProdutos: Long get() = itens.sumOf { it.subtotal }
     val podesSalvar: Boolean get() = clienteSelecionado != null && itens.isNotEmpty() && !salvando
 }
 
