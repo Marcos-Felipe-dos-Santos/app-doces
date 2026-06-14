@@ -29,4 +29,7 @@ interface PedidoDao {
 
     @Query("SELECT SUM(totalFinal) FROM pedido WHERE status = 'ENTREGUE' AND dataEntrega BETWEEN :inicio AND :fim")
     fun getReceitaPeriodo(inicio: Long, fim: Long): Flow<Long?>
+
+    @Query("SELECT * FROM pedido WHERE dataCriacao BETWEEN :inicio AND :fim")
+    fun getPedidosPeriodo(inicio: Long, fim: Long): Flow<List<PedidoEntity>>
 }

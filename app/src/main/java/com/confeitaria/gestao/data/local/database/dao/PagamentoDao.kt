@@ -17,4 +17,7 @@ interface PagamentoDao {
 
     @Query("UPDATE pagamento SET confirmado = 1 WHERE id = :id")
     suspend fun confirmar(id: Long)
+
+    @Query("SELECT COALESCE(SUM(valor), 0) FROM pagamento WHERE confirmado = 1 AND dataPagamento BETWEEN :inicio AND :fim")
+    fun getTotalRecebidoPeriodo(inicio: Long, fim: Long): Flow<Long>
 }

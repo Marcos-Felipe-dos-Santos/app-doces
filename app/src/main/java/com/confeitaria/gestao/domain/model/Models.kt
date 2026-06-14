@@ -58,6 +58,7 @@ data class Pedido(
     val id: Long = 0,
     val clienteId: Long,
     val clienteNome: String = "",
+    val clienteTelefone: String = "",
     val dataPedido: Long = System.currentTimeMillis(),
     val dataEntrega: Long? = null,
     val horaEntrega: String? = null,
