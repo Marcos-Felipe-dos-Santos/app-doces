@@ -11,16 +11,27 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProdutoFormScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: ProdutoFormViewModel = hiltViewModel()
 ) {
+    val salvo by viewModel.salvo.collectAsState()
+    val categorias by viewModel.categorias.collectAsState()
+
     var nome by remember { mutableStateOf("") }
     var descricao by remember { mutableStateOf("") }
     var precoBase by remember { mutableStateOf("") }
+    var categoriaSelecionadaId by remember { mutableStateOf<Long?>(null) }
+    var expandedCategoria by remember { mutableStateOf(false) }
+
+    LaunchedEffect(salvo) {
+        if (salvo) navController.popBackStack()
+    }
 
     Scaffold(
         topBar = {
@@ -74,10 +85,45 @@ fun ProdutoFormScreen(
                 prefix = { Text("R$ ") }
             )
 
+            if (categorias.isNotEmpty()) {
+                val categoriaNome = categorias.find { it.id == categoriaSelecionadaId }?.nome ?: "Sem categoria"
+                ExposedDropdownMenuBox(
+                    expanded = expandedCategoria,
+                    onExpandedChange = { expandedCategoria = it }
+                ) {
+                    OutlinedTextField(
+                        value = categoriaNome,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Categoria") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCategoria) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedCategoria,
+                        onDismissRequest = { expandedCategoria = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Sem categoria") },
+                            onClick = { categoriaSelecionadaId = null; expandedCategoria = false }
+                        )
+                        categorias.forEach { cat ->
+                            DropdownMenuItem(
+                                text = { Text(cat.nome) },
+                                onClick = { categoriaSelecionadaId = cat.id; expandedCategoria = false }
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = { navController.popBackStack() },
+                onClick = {
+                    val preco = precoBase.replace(",", ".").toDoubleOrNull() ?: 0.0
+                    viewModel.salvar(nome, descricao, preco, categoriaSelecionadaId)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = nome.isNotBlank() && precoBase.isNotBlank()
             ) {

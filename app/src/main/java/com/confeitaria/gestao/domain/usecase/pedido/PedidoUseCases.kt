@@ -16,3 +16,7 @@ class SavePedidoUseCase @Inject constructor(private val repository: PedidoReposi
 class UpdateStatusPedidoUseCase @Inject constructor(private val repository: PedidoRepository) {
     suspend operator fun invoke(id: Long, status: String) = repository.updateStatus(id, status)
 }
+
+class GetPedidoByIdUseCase @Inject constructor(private val repository: PedidoRepository) {
+    suspend operator fun invoke(id: Long): Pedido? = repository.getById(id)
+}
