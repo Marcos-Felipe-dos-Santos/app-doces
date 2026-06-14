@@ -54,8 +54,8 @@ class PedidoRepositoryImpl @Inject constructor(
 
     override fun countAtivos(): Flow<Int> = pedidoDao.countAtivos()
 
-    override fun getReceitaPeriodo(inicio: Long, fim: Long): Flow<Double> =
-        pedidoDao.getReceitaPeriodo(inicio, fim).map { it ?: 0.0 }
+    override fun getReceitaPeriodo(inicio: Long, fim: Long): Flow<Long> =
+        pedidoDao.getReceitaPeriodo(inicio, fim).map { it ?: 0L }
 
     private fun PedidoEntity.toDomain(clienteNome: String = "", itens: List<ItemPedido> = emptyList()) = Pedido(
         id = id, clienteId = clienteId, clienteNome = clienteNome,

@@ -30,7 +30,7 @@ interface PedidoRepository {
     suspend fun save(pedido: Pedido): Long
     suspend fun updateStatus(id: Long, status: String)
     fun countAtivos(): Flow<Int>
-    fun getReceitaPeriodo(inicio: Long, fim: Long): Flow<Double>
+    fun getReceitaPeriodo(inicio: Long, fim: Long): Flow<Long>
 }
 
 interface FreteRepository {

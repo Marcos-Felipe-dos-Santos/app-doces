@@ -25,10 +25,10 @@ data class PedidoEntity(
     val enderecoId: Long? = null,
     val status: String = "PENDENTE",
     val formaPagamento: String? = null,
-    val totalProdutos: Double = 0.0,
-    val totalFrete: Double = 0.0,
-    val desconto: Double = 0.0,
-    val totalFinal: Double = 0.0,
+    val totalProdutos: Long = 0L,
+    val totalFrete: Long = 0L,
+    val desconto: Long = 0L,
+    val totalFinal: Long = 0L,
     val observacoes: String? = null,
     val dataCriacao: Long = System.currentTimeMillis()
 )

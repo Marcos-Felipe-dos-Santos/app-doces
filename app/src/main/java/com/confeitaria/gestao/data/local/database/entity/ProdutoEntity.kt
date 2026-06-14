@@ -16,7 +16,7 @@ data class ProdutoEntity(
     val categoriaId: Long? = null,
     val nome: String,
     val descricao: String? = null,
-    val precoBase: Double,
+    val precoBase: Long,
     val fotoPath: String? = null,
     val ativo: Boolean = true
 )

@@ -14,7 +14,7 @@ import androidx.room.PrimaryKey
 data class PagamentoEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val pedidoId: Long,
-    val valor: Double,
+    val valor: Long,
     val formaPagamento: String,
     val dataPagamento: Long = System.currentTimeMillis(),
     val confirmado: Boolean = false

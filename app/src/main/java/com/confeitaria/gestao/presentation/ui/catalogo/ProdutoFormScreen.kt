@@ -13,6 +13,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.confeitaria.gestao.presentation.util.toCentavos
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,8 +122,7 @@ fun ProdutoFormScreen(
 
             Button(
                 onClick = {
-                    val preco = precoBase.replace(",", ".").toDoubleOrNull() ?: 0.0
-                    viewModel.salvar(nome, descricao, preco, categoriaSelecionadaId)
+                    viewModel.salvar(nome, descricao, precoBase.toCentavos(), categoriaSelecionadaId)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = nome.isNotBlank() && precoBase.isNotBlank()

@@ -15,5 +15,5 @@ data class ProdutoVariacaoEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val produtoId: Long,
     val nome: String,
-    val precoAdicional: Double = 0.0
+    val precoAdicional: Long = 0L
 )
