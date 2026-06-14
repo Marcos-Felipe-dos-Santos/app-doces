@@ -1,77 +1,113 @@
-# App Gestão Confeitaria Artesanal 🍰
+# App Confeitaria Gestao
 
-Aplicativo Android nativo desenvolvido para gestão completa de uma confeitaria artesanal, focado em uso pessoal e produtividade offline.
+Aplicativo Android nativo offline-first para gestao de confeitaria artesanal.
+Bolos, doces, ovos de Pascoa, panetones — sem login, sem nuvem, dados no celular.
 
-## 🚀 Visão Geral
+## Status
 
-O projeto foi construído utilizando as tecnologias mais modernas do ecossistema Android, seguindo os princípios de **Clean Architecture** e **MVVM**. O objetivo é oferecer uma ferramenta robusta para controle de clientes, produtos, pedidos e finanças, funcionando 100% localmente.
+- MVP funcional, 17 testes passando, BUILD SUCCESSFUL
+- 5 PRs mergeados (Fases 1 a 5)
+- Pronto para uso real controlado
 
-## 🛠️ Stack Técnica
+## Funcionalidades
 
-- **Linguagem:** Kotlin
-- **UI:** Jetpack Compose com Material Design 3
-- **Arquitetura:** Clean Architecture + MVVM
-- **Injeção de Dependência:** Hilt
-- **Banco de Dados:** Room (SQLite)
-- **Preferências:** DataStore
-- **Assincronismo:** Coroutines + StateFlow
-- **Rede:** Retrofit + OkHttp (ViaCEP, Nominatim, OSRM)
-- **Imagens:** Coil
-- **Gráficos:** MPAndroidChart
-- **PDF:** iText7
-- **Background Tasks:** WorkManager
+### Cadastros
 
-## 📂 Estrutura do Projeto
+- Clientes: nome, telefone, email, observacoes, multiplos enderecos
+- Produtos: nome, categoria, preco base, descricao
 
-O projeto segue uma estrutura de pacotes canônica para Clean Architecture:
+### Pedidos
 
-```text
-com.confeitaria.gestao/
-├── data/               # Implementações de dados (Local e Remoto)
-│   ├── local/          # Room Database, DAOs, Entities, DataStore
-│   ├── remote/         # APIs Retrofit e DTOs
-│   └── repository/     # Implementações dos repositórios
-├── domain/             # Regras de Negócio
-│   ├── model/          # Modelos de dados puros e Enums
-│   ├── repository/     # Interfaces dos repositórios
-│   └── usecase/        # Casos de uso específicos por domínio
-├── presentation/       # Camada de UI
-│   ├── components/     # Componentes Compose reutilizáveis
-│   ├── navigation/     # NavHost e definições de rotas
-│   ├── theme/          # Definições de cores, tipos e tema Material3
-│   ├── ui/             # Telas e ViewModels por funcionalidade
-│   └── util/           # Formatadores e utilitários de UI
-└── worker/             # Tarefas em background (Notificações)
+- Vincula cliente + lista de itens (produto + quantidade)
+- Tipo: entrega ou retirada
+- Calcula automaticamente: subtotal, frete, desconto, total
+- Status do pedido com chip visual
+- Detalhe completo com cliente, itens e total
+
+### Financeiro
+
+- Dinheiro armazenado em Long (centavos) — sem erro de precisao
+- Regras testadas: subtotal de item, total do pedido, total com juros,
+  valor da parcela, valor pendente, frete com taxa minima
+
+### Relatorio mensal
+
+- Total de pedidos no mes vigente
+- Faturamento bruto
+- Recebido vs pendente
+- Ticket medio
+
+### Recursos nativos do celular
+
+- Abrir WhatsApp do cliente (Intent nativa, sem API paga)
+- Abrir endereco no Maps/Waze (Intent nativa)
+- Mensagem pre-formatada para avisar sobre pedido pronto
+
+## Offline-first
+
+- Dados em SQLite (Room) — fonte de verdade local
+- ViaCEP, Nominatim e OSRM (geocodificacao) sao opcionais e protegidos
+  por try/catch — falha de rede nao impede salvar
+- App funciona 100% sem internet
+
+## Stack
+
+Kotlin, Jetpack Compose, Material3, Navigation Compose, Room 2.6.1,
+Hilt 2.51, DataStore, KSP. compileSdk 34, minSdk 26.
+
+## Arquitetura (MVVM)
+
+- `data/local` — Room (entity, dao, AppDatabase) e DataStore
+- `data/remote` — Retrofit (ViaCEP, Nominatim, OSRM — opcionais)
+- `data/repository` — Impl dos repositories
+- `di` — Hilt (DatabaseModule, NetworkModule, RepositoryModule)
+- `domain/model` — Models e enums
+- `domain/repository` — interfaces
+- `domain/usecase` — use cases por feature (cliente, pedido, produto, frete)
+- `presentation/ui` — telas Compose por feature
+- `presentation/components` — Card, TopBar, EmptyState, Chip
+- `presentation/navigation` — AppNavGraph, Screen
+- `presentation/util` — CurrencyFormatter (Long centavos), IntentUtils
+
+## Como rodar
+
+1. Instale o Android Studio (https://developer.android.com/studio)
+2. File -> Open -> selecione a pasta do projeto
+3. Aguarde o Gradle Sync (~5-15 min na primeira vez)
+4. Build -> Make Project (ou Ctrl+F9)
+5. Run no celular fisico (com depuracao USB) ou no emulador
+
+## Comandos
+
+```
+# Build debug
+.\gradlew.bat assembleDebug
+
+# Testes JVM (17 testes)
+.\gradlew.bat testDebugUnitTest
+
+# Limpar cache
+.\gradlew.bat clean
 ```
 
-## ✨ Funcionalidades Principais
+## Regras de negocio
 
-1.  **Dashboard:** Resumo diário de entregas, pedidos em produção e métricas financeiras.
-2.  **Gestão de Clientes:** Cadastro completo com múltiplos endereços e histórico de pedidos.
-3.  **Catálogo de Produtos:** Controle de produtos com variações de preços e cálculo de margem de lucro.
-4.  **Fluxo de Pedidos:** Sistema multi-step para criação de pedidos, incluindo cálculo automático de frete.
-5.  **Integrações Inteligentes:** 
-    *   Auto-preenchimento de endereço via CEP (**ViaCEP**).
-    *   Geocodificação e cálculo de distância para frete (**Nominatim** e **OSRM**).
-6.  **Financeiro:** Acompanhamento de receitas e pagamentos pendentes.
-7.  **Relatórios:** Geração de relatórios em PDF para exportação.
-8.  **Notificações:** Lembretes automáticos de produção e entrega via WorkManager.
+- subtotal item = quantidade x precoUnitario
+- total pedido = subtotalItens + frete - desconto
+- total com juros = total x (100 + juros) / 100
+- valor parcela = totalComJuros / numeroParcelas
+- valor pendente = total - pago
+- frete = distancia x precoPorKm, respeitando taxaMinima
+- Todos os valores em Long centavos para precisao monetaria
 
-## ⚙️ Configuração do Ambiente
+## Roadmap (pos-MVP, baseado em uso real)
 
-1.  **Android Studio:** Jellyfish (ou superior).
-2.  **JDK:** Version 17.
-3.  **Gradle:** 8.3.0.
-4.  **Permissões:** O app solicita acesso à Internet (APIs de frete), Câmera (fotos de produtos) e Notificações.
+- Polish baseado no feedback do uso real
+- Notificacoes locais para lembretes de entrega
+- Backup/export em CSV
+- Filtros e busca avancada
+- Fotos do pedido (opcional)
 
----
+## Licenca
 
-## 📝 Regras de Desenvolvimento (Padrão do Projeto)
-
-- **Offline First:** Todos os dados são persistidos localmente.
-- **PT-BR:** Toda a interface e mensagens são em Português Brasileiro.
-- **Clean Code:** Uso rigoroso de injeção de dependência e separação de responsabilidades.
-- **Segurança:** Sem autenticação complexa, dados armazenados no dispositivo da usuária.
-
----
-*Desenvolvido como solução de gestão para confeiteiras artesanais.*
+Uso pessoal / familiar.
