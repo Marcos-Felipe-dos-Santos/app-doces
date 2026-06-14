@@ -11,22 +11,40 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClienteFormScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: ClienteFormViewModel = hiltViewModel()
 ) {
+    val salvo by viewModel.salvo.collectAsState()
+    val clienteInicial by viewModel.clienteInicial.collectAsState()
+
     var nome by remember { mutableStateOf("") }
     var telefone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var observacoes by remember { mutableStateOf("") }
 
+    LaunchedEffect(clienteInicial) {
+        clienteInicial?.let {
+            nome = it.nome
+            telefone = it.telefone
+            email = it.email ?: ""
+            observacoes = it.observacoes ?: ""
+        }
+    }
+
+    LaunchedEffect(salvo) {
+        if (salvo) navController.popBackStack()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Novo Cliente") },
+                title = { Text(if (viewModel.isEditing) "Editar Cliente" else "Novo Cliente") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
@@ -86,7 +104,7 @@ fun ClienteFormScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = { navController.popBackStack() },
+                onClick = { viewModel.salvar(nome, telefone, email, observacoes) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = nome.isNotBlank() && telefone.isNotBlank()
             ) {

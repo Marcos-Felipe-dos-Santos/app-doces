@@ -20,3 +20,7 @@ class DeleteClienteUseCase @Inject constructor(private val repository: ClienteRe
 class GetClienteByIdUseCase @Inject constructor(private val repository: ClienteRepository) {
     suspend operator fun invoke(id: Long): Cliente? = repository.getById(id)
 }
+
+class SearchClientesUseCase @Inject constructor(private val repository: ClienteRepository) {
+    operator fun invoke(query: String): Flow<List<Cliente>> = repository.search(query)
+}
